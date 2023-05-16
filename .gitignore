@@ -1,3 +1,6 @@
+# Ignore dotenv files
+.env
+
 # Logs
 logs
 *.log
