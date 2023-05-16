@@ -5,6 +5,9 @@ dotenv.config();
 const app = express()
 const NAME = 'quyenhoang'
 
+// Middleware bodyparser
+app.use(express.json())
+
 app.get('/', (req, res) => {
   res.status(200).json('This test route is working just fine')
 })
@@ -15,6 +18,7 @@ app.get(`/${NAME}`, (req, res) => {
 
 app.post('/', (req, res) => {
   const query = req.body
+  console.log(query)
   if (!query.user) {
     res.status(400).json('Create request unsuccessful, please send a JSON body with a user property')
   } else {
