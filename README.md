@@ -3,235 +3,178 @@
 ## About
 Deploy a simple node.js application over to the cloud, we'll be using an AWS EC2 instance:
 
-<img src="https://img.shields.io/badge/React-61DAFB.svg?style=for-the-badge&logo=React&logoColor=black"></img>
+<img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=for-the-badge&logo=JavaScript&logoColor=black"></img>
 <img src="https://img.shields.io/badge/Node.js-339933.svg?style=for-the-badge&logo=nodedotjs&logoColor=white"></img>
 <img src="https://img.shields.io/badge/Express-000000.svg?style=for-the-badge&logo=Express&logoColor=white"></img>
-<img src="https://img.shields.io/badge/JavaScript-F7DF1E.svg?style=for-the-badge&logo=JavaScript&logoColor=black"></img>
-<img src="https://img.shields.io/badge/TypeScript-3178C6.svg?style=for-the-badge&logo=TypeScript&logoColor=white"></img>
+<img src="https://img.shields.io/badge/.ENV-ECD53F.svg?style=for-the-badge&logo=dotenv&logoColor=black"></img>
+<img src="https://img.shields.io/badge/Postman-FF6C37.svg?style=for-the-badge&logo=Postman&logoColor=white"></img>
 
-and whichever database you prefer. For this exercise, the following databases I've used are:
+
+For this exercise, we'll just be deploying a simple Node.js application up to the cloud and testing if our routes work. Please follow the steps below, step-by-step, to setup the appropriate packages in order to get a running application up locally. Afterwards, we'll deploy using an AWS EC2 instance and seeing if our application still works over the cloud.
 
 ## Table of Contents
 - [Deploy Node.js Application with AWS EC2 Instance](#deploy-nodejs-application-with-aws-ec2-instance)
   - [About](#about)
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
-    - [package.json and prettier/eslint/editorconfig wombocombo](#packagejson-and-prettiereslinteditorconfig-wombocombo)
-  - [Webpack dev server bundler and swc compiler](#webpack-dev-server-bundler-and-swc-compiler)
-    - [Initial Files (src/dist)](#initial-files-srcdist)
-    - [Test on the Browser](#test-on-the-browser)
-  - [Creating a Server and Database](#creating-a-server-and-database)
-    - [Setting up our Database](#setting-up-our-database)
-    - [Setting up our Express.js Server](#setting-up-our-expressjs-server)
+    - [Setting up our repository](#setting-up-our-repository)
+    - [Testing with an API platform](#testing-with-an-api-platform)
+    - [Getting our AWS EC2 Instance ready](#getting-our-aws-ec2-instance-ready)
   - [Contributors](#contributors)
 
-Please follow the steps below, step-by-step, to setup the appropriate packages in order to get a running application up locally. Create a new git repository and begin following the instructions below.
+Create a new git repository and begin following the instructions below.
 
 ## Getting Started
 
-### package.json and prettier/eslint/editorconfig wombocombo
+### Setting up our repository
 
 1. To create <a href="https://blog.ezekielekunola.com/understanding-the-package.json-file">package.json</a> and skip <a href="https://docs.npmjs.com/cli/v9/commands/npm-init">the questionnaire altogether</a>, open VS code terminal with `ctrl + backtick mark` and write in the terminal the following command:
 
-```
+```bash
 npm init -y
 ```
 
-2. To setup <a href="https://prettier.io/docs/en/options.html">prettier</a>, <a href="https://eslint.org/">eslint</a>, <a ref="https://editorconfig.org/">editorconfig</a> wombocombo as <a href="https://www.knowledgehut.com/blog/web-development/npm-install-dev-dependencies">dev dependencies.</a> These extensions are essential when working in codebases where many people are collaborating. Eslint will help enforce code styles, prettier will format code, and editorconfig will enforce defined coding styles for multiple developers across multiple devices: you can think linux, mac, and windows operating systems. Please make sure you have prettier and eslint installed on vscode.
+2. Open the terminal again and please run the following commands below. Also, please make sure you have Postman installed or an API platform of your choice.
 
-```
-npm i -D prettier eslint-plugin-prettier eslint-config-prettier eslint-plugin-node eslint-config-node
-```
-
-3. (<b>Optional</b>) In terms of style guides, Airbnb has one of the most popular for writing concise, clean and readable JavaScript code. Here are a few <a href="https://tinyurl.com/5cmhcfxf">examples</a> if you're interested in learning more. The Airbnb style guide is quite strict, so this is an <b>optional step</b>.
-
-```
-npx install-peerdeps --dev eslint-config-airbnb
+```bash
+npm i express dotenv
 ```
 
-1. Now that you have the wombocombo setup, please <b>copy and paste the `.editorconfig`, `.eslintrc.json` and `.prettierrc` files</b> in this github repo over to your new project. I've already created the config files so that you can start coding. If you'd like to make your own changes, please refer to docs and online resources. To setup the config files yourself and learn more, refer to this <a href="https://www.youtube.com/watch?v=SydnKbGc7W8&t=378s&ab_channel=TraversyMedia">video</a>. At this stage, your repository should look similar to the photo below.
+3. Now in our repository, create a new folder called server and a file called index.js. Please create an express application with the following http requests: `get`, `post`, `put`, `delete` requests. If you're struggling at this stage, feel free to refer to the source code <a ref="https://github.com/quyencodes/aws-nodejs/tree/main/server" target="_blank" rel="noreferrer noopener">here</a> and try to replicate it yourself.
 
-| Checkpoint 1
-:-:
-<img src="https://user-images.githubusercontent.com/104607182/230505198-86deb36d-3bcb-4d4d-bbce-2f4220e0f55b.png">|
-
-## Webpack dev server bundler and swc compiler
-
-Webpack is the OG of module bundlers and it's main purpose is bundling JavaScript files with dependencies into static assets for the browser. With an appropriate loader, we can also bundle HTML, CSS, and images into static assets as well. swc is a rust-based platform that compiles JavaScript files and outputs code that is supported by a majority of browsers. As of April 2022, swc is 20x faster than Babel. We'll be using the swc loader because of this.
-
-Module bundlers are the way to organize and combine many files of JavaScript code into one file. This is important because the browser can only read from one file when generating your code. The loader helps with compiling and transpiling. Compiling is important to translate source code from a high-level programming language (js, python, java) to a low-level programming language (machine code) such that your computer program can understand. A transpiler helps convert code writtin in one programming language (js ES6) into another (js ES5) while preserving the original code's functionality. In the case of JavaScript, we can convert modern JavaScript code into a format that can run in older environments that don't support the latest language features (backwards compatability).
-
-1. Now we want to install webpack dev server and swc loader to get our code up on the browser. To get started, run the following commands below.
-
-```
-npm i --save-dev webpack-dev-server
-npm i --save-dev @swc/core swc-loader webpack webpack-cli
-```
-
-2. In order to configure our webpack bundler, we need to install and import a few packages.
-
-```
-npm i --save path
-npm i --save-dev html-webpack-plugin mini-css-extract-plugin
-npm i --save-dev css-loader file-loader
-```
-
-3. Copy over the `webpack.config.js` in this repo over to your new project. Webpack is quite complex and has a steep learning curve, so if you want to learn more about the technicalities of it I suggest you learn it individually if interested, but for purposes of this repo I have provided a good foundation to start from.
-
-### Initial Files (src/dist)
-
-1. Create a src and dist folder. Src is where we write all of our source code and dist is where all of our static files are outputted.
-
-The file structure we should have is:
-- dist (this is where our bundled files will output too)
-- src
-  - App.jsx (beginning of our React code)
-  - index.jsx (attach React/HTML to the DOM)
-  - index.html (where we initialize our root/app)
-
-As an exercise, please fill out `App.jsx`, `index.jsx`, and `index.html` yourself. Refer to the official react docs and look up <a href="https://react.dev/reference/react-dom/client/createRoot">react-dom/client</a> on how to get started. However, if you're struggling feel free to continue along for the answer.
-
-1. Install react and react-dom packages.
-
-```
-npm i react react-dom
-```
-
-2. In `App.jsx`, let's create a parent component in our new React app.
-
-```js
-import react from 'react';
-
-export default function App() {
-  return (
-    <main className="container">
-      <div>hello world</div>
-    </main>
-  )
-}
-```
-
-3. In `index.js`, please insert the following code:
-
-```js
-import react from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
-
-const root = createRoot(document.getElementById('app'))
-root.render(<App/>)
-```
-
-4. In `index.html`, please include the following code:
-
-```js
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Name Here</title>
-    <div id="app"></div>
-  </head>
-  <body></body>
-</html>
-```
-
-### Test on the Browser
-
-Now we're at the point where we can start seeing our code up on the browser.
-
-1. Navigate to `package.json` and under the `scripts` property write the following script commands:
-
-- We specify the type to be module to use `import` and `export` statements (ES modules), which are used in modern web browsers. The alternative is to utilize CommonJS module format, like `require()` and `module.exports` statements that are typically found in earlier versions of Node.js, to do so just exclude the type property altogether in package.json. To learn more, please click <a ref="https://blog.logrocket.com/commonjs-vs-es-modules-node-js/" target="_blank">here</a>.
+4. Navigate into package.json and add a script such as below. If you decided to go with a different folder or file name, please update the server script line.
 
 ```json
-"type": "module",
 "scripts": {
-  "build": "webpack",
-  "dev": "npx webpack-dev-server --port=3000",
-  "server": "nodemon server/index.js",
-  "lint": "npx eslint -c ./.eslintrc.json src/**/*"
+  "server": "node server/index.js",
+  "test": "echo \"Error: no test specified\" && exit 1"
 },
 ```
 
-1. Write `npm run build` in the terminal. Build involves telling webpack we want to generate the files and put them in the `/dist` folder. You should see two files output to the dist folder called bundle.js and index.html. These are the files webpack has bundled and the browser is parsing. Now write `npm run dev` to begin the webpack-dev server and to get the code on the browser locally.
+5. Open up your terminal and write the following command:
 
-2. Now open up your favorite browser, put
+```bash
+npm run server
 ```
-http://localhost:3000
-```
-and you should see your code from your App.jsx rendered on the window.
 
-| Checkpoint 2
+<b>Checkpoint</b>: At this point, you should be error free and the terminal should have a message something like:
+
+```
+Server is listening on port XXXX
+```
+
+Please revisit the prior steps if your application is not displaying something similar. It's okay to mess up, let's take the time to debug our code.
+
+### Testing with an API platform
+
+1. For this tutorial I will be using Postman to test our http requests. Please open up a Postman workbench and include the following API address to begin testing our routes:
+
+|Navigating Postman |
 :-:
-<img src="https://user-images.githubusercontent.com/104607182/230524619-2ea30163-76e6-420b-8c3e-3a20a7155084.png">|
+<img src="https://github.com/quyencodes/v1/assets/104607182/75b028fe-52bb-4a38-bff6-c1acd2470911"/>
 
-## Creating a Server and Database
-For our server, we'll be mainly using `Express.js`, and the choice of database is up to you. For the instructions, I'll be going over a simple `MongoDB database` setup.
-
-1. Create a server and db folder. I wish there was a universal all-in-one guide on folder naming conventions, but there really isn't. If you find yourself finding better naming conventions for these folders, feel free too. Anyways, your file structure should look like the below.
-
-- server
-  - index.js (where we create our express application)
-  - model.js (where we create our queries for our database)
-  - controller.js (where we handle our requests and routes)
-  - db.js (where we set up our database)
-
-Generally, if there isn't a configuration set that specifies which file to look for first, Node.js  will default to using index.js if there is a file of that name in the folder it's searching in. Thus, why we are using index.js as our main files above. Learn more <a href="https://forum.freecodecamp.org/t/why-is-there-always-an-index-html-file-and-an-index-js-file/479063/2">here</a>.
-
-Why I am using certain naming conventions like `model.js` and `controller.js` is because I'm generally following the MVC pattern of web development. MVC is a popular architecture for build web applications.
-
-From my time self-studying, I've learned that working from backend to frontend has allowed my application to be less prone to errors. Which is why this part is so essential. This is where we're going to look up documentation to get help setting up our database. Seeing our database visually is pretty difficult given the nature of the work, unless you have a GUI. From here on, I'll be listing some `general steps` we must do whenever we set up a database.
-
-### Setting up our Database
-
-1. Make sure to have the <b>selected database</b> and <b>Node.js</b> downloaded on your computer. Remember for this exercise, we'll be using MongoDB as our selected database.
-2. Next, install MongoDB and Mongoose from the command line using npm. For this exercise, we'll be using Mongoose, which is an ORM for MongoDB. ORM stands for Object Relational Mapping and essentially creates a bridge between object-oriented programs, and in mose cases, relational databases. In short, we can write queries in SQL (SELECT id FROM table_name WHERE id = 20) as `table_name.GetById(20)` with an ORM.
-
-Run the command below:
-```
-npm install mongoDB mongoose --save
+```bash
+http://localhost:${PORT}
 ```
 
-Listed below are some steps to set up our database and connect it to our model and server. Please interpret the below as skeleton code if you will.
+The port will default to 8080 if you have not specified any enviornment variables. If you have specified environment variables, please enter the number you set after the colon.
 
-1. Import mongoose in the file
-2. Open a connection to our MongoDB database via <a href="https://mongoosejs.com/docs/connections.html">URI</a>
-3. Create our <a href='https://mongoosejs.com/docs/guide.html'>Schema(s)</a>. Each schema maps to a MongoDB collection and defines the shape of the documents within that collection. For purposes of this demonstration, we'll be making a simple anime watchlist application. Try to create a schema yourself using documentation, but refer below if needed to see how I've made it.
+Please take the time here to test the express application we created with the following http requests: `get`, `post`, `put`, `delete`.
 
-```js
-const animeSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    unique: true
-  },
-  description: String,
-  watched: {
-    type: Boolean,
-    default: false,
-  },
-})
-```
+<details>
+  <summary> Get Solution </summary>
 
-4. To use our schema definition, we need to convert our Schema into a <a href="https://mongoosejs.com/docs/models.html">Model</a>. An instance of a model is called a document/record.
-5. Once we have our schema(s) and model(s) completed, we'll <a href="https://www.geeksforgeeks.org/what-is-export-default-in-javascript/#">export</a> our database
+  Please run the following commands with the appropriate API tabs:
 
-### Setting up our Express.js Server
-Remember we're working from back to front. Now that we have our database set up, we want to set up our server locally. We'll be using Express for this exercise because its simple and the documentation is easy to navigate.
+  <b>Important</b>: In this solution, I use port 8000. If you are using a different port please specify accordingly.
 
-1. Install Express from the command line using npm and import it into our project.
-2. Create an instance of your express application.
-3. Implement middlewares. Common middlewares are morgan, cors, and a body parser (I will be using express.json).
-4. Set the port you want your local express application to listen too, and start the local instance.
-5. Please run the following command in the command line `npm run server` and if you added `console.log` statements it should reply back with:
+  `GET /`
 
-| Checkpoint 3
-:-:
-<img src="https://user-images.githubusercontent.com/104607182/231067059-7851d219-447f-4922-81f8-3eb718812c85.png">|
+  ```
+  http://localhost:8000
+  ```
 
-You've now completed the basic set up for a simple CRUD application. This repository only contains the setup files to get you started coding up an application. If you want to see what a complete application looks like, please refer here.
+  Reponse:\
+  `Status: 200 OK`\
+  `"This test route is working just fine"`
+</details>
+
+<details>
+  <summary> Post Solution </summary>
+
+  `POST /`
+
+  ```
+  http://localhost:8000
+  ```
+
+  Here's a screenshot below if you're unfamiliar with setting a JSON body in the request.
+
+  | Post Checkpoint
+  :-:
+<img src="https://github.com/quyencodes/v1/assets/104607182/57460aee-722e-4ce0-b4be-0102f627cfa5">|
+
+  `JSON Body`
+  ```json
+  {
+    "user": "quyencodes"
+  }
+  ```
+
+  Reponse:\
+  `Status: 201 OK`\
+  `"Request to create quyencodes successful"`
+</details>
+<details>
+  <summary>Put Solution</summary>
+
+  `PUT /:id`
+
+  ```
+  http://localhost:8000/id
+  ```
+
+  Parameters
+
+| Parameter  | Type    | Description        |
+| ---------- | ------- | ------------------ |
+| id | string / int | Required ID requested |
+
+  Response:\
+  `Status: 200 OK`\
+  `"Request to update :id successful"`
+</details>
+<details>
+<summary>Delete Solution</summary>
+
+  `DELETE /:id`
+
+  ```
+  http://localhost:8000/id
+  ```
+
+  Parameters
+
+| Parameter  | Type    | Description        |
+| ---------- | ------- | ------------------ |
+| id | string / int | Required ID requested |
+
+  Response:\
+  `Status: 200 OK`\
+  `"Request to delete :id successful"`
+
+</details>\
+
+At this point we've tested all of our routes locally. This checkpoint is essential because we have to make sure our application works locally before shipping to the cloud.
+
+### Getting our AWS EC2 Instance ready
+
+Please navigate to .
+
+
+
+
+You've now completed the basic set up for a simple Node.js application deploying with AWS EC2.
 
 Thank you for following my tutorial and I'm happy to answer any questions, comments, or feedback to make this repo better and more beginner friendly.
 
